@@ -43,10 +43,11 @@ let _ = Tests.register "Base: head_exn" (fun () ->
     OUnit.assert_raises Seq.EmptySeq (fun () -> Seq.head_exn s)
 )
 
-let _ = Tests.register "Helper: of_list" (fun () ->
+let _ = Tests.register "Helper: of_list, to_list" (fun () ->
     let l = [1;2;3;] in
     let s = Seq.of_list l in
-    _cmp_to_list_end s l
+    _cmp_to_list_end s l;
+    OUnit.assert_equal l (Seq.to_list s)
 )
 
 let _ = Tests.register "Helper: of_serie" (fun () ->
@@ -89,6 +90,31 @@ let _ = Tests.register "filter" (fun () ->
     let s = Seq.of_list [0;1;2;3;4;5;6;7;8;9;] in
     let f = Seq.filter (fun x -> x mod 2 = 0) s in
     _cmp_to_list_end f [0;2;4;6;8;]
+)
+
+let _ = Tests.register "concat" (fun () ->
+    let s1 = Seq.of_list [0;1;2;] in
+    let s2 = Seq.of_list [3;4;5;] in
+    let s3 = Seq.of_list [6;7;8;] in
+    let seq = Seq.concat [s1;s2;s3;] in
+    _cmp_to_list_end seq [0;1;2;3;4;5;6;7;8;]
+)
+
+let _ = Tests.register "cart" (fun () ->
+    let s1 = Seq.of_list [0;1;] in
+    let s2 = Seq.of_list [2;3;] in
+    let s3 = Seq.of_list [4;5;] in
+    let cart = Seq.cart [s1;s2;s3] in
+    _cmp_to_list_end cart [
+        [0;2;4;];
+        [0;2;5;];
+        [0;3;4;];
+        [0;3;5;];
+        [1;2;4;];
+        [1;2;5;];
+        [1;3;4;];
+        [1;3;5;];
+    ]
 )
 
 let _ = Tests.run "Seq test suite"

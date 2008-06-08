@@ -28,7 +28,7 @@ let tail seq =
         Lazy.force q
 
 
-(* Construction helpers *)
+(* Transformation helpers *)
 
 let rec of_list lst =
     match lst with
@@ -36,6 +36,16 @@ let rec of_list lst =
         Cons(h, lazy (of_list q))
     | [] ->
         Nil
+
+let to_list seq =
+    let rec _to_list seq acc =
+        match head seq with
+        | Some h ->
+            _to_list (tail seq) (h::acc)
+        | None ->
+            List.rev acc
+    in
+    _to_list seq []
 
 let rec of_serie fn n0 =
     Cons(n0, lazy (of_serie fn (fn n0)))
@@ -78,3 +88,31 @@ let rec filter pred seq =
         else
             filter pred (tail seq)
 
+let rec concat seqs =
+    match seqs with
+    | h :: a ->
+        begin
+        match head h with
+        | None ->
+            concat a
+        | Some e ->
+            Cons(e, lazy (concat ((tail h) :: a)))
+        end
+    | [] ->
+        Nil
+
+let rec cart seqs =
+    match seqs with
+    | [] ->
+        Nil
+    | h :: [] ->
+        map (fun e -> [e;]) h
+    | h :: a ->
+        match head h with
+        | None ->
+            Nil
+        | Some e ->
+            concat [
+                (map (fun c -> e :: c) (cart a));
+                (cart ((tail h) :: a));
+            ]
