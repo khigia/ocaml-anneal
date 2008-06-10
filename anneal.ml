@@ -1,3 +1,9 @@
+
+let kirkpatrick_seq alpha initial =
+    let kirkpatrick alpha temperature = temperature *. alpha in
+    Seq.of_serie (kirkpatrick alpha) initial
+
+
 type 'a sol =
     | Final of 'a state
     | Intermediate of 'a state

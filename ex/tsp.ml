@@ -42,7 +42,32 @@ let reversed_section tour =
     )
     |> Seq.filter (fun sol -> sol <> tour)
 
-let kirkpatrick_seq alpha initial =
-    let kirkpatrick alpha temperature = temperature *. alpha in
-    Seq.of_serie (kirkpatrick alpha) initial
 
+module LatLon = struct
+
+    let pi = acos (-. 1.)
+
+    let radians deg =
+        deg *. pi /. 180.
+
+    let degrees rad =
+        180. *. rad /. pi
+
+    let _haversine (lat1d, lon1d) (lat2d, lon2d) =
+        let lat1 = radians lat1d in
+        let lon1 = radians lon1d in
+        let lat2 = radians lat2d in
+        let lon2 = radians lon2d in
+        let dLat_2_sin = sin ( (lat2 -. lat1) /. 2. ) in
+        let dLon_2_sin = sin ( (lon2 -. lon1) /. 2. ) in
+        let a =
+            dLat_2_sin *. dLat_2_sin
+            +. (cos lat1) *. (cos lat2) *. dLon_2_sin *. dLon_2_sin
+        in
+        let c = 2. *. (atan2 (sqrt a) (sqrt (1. -. a))) in
+        6371000. *. c
+
+    let distance p1 p2 =
+        if p1 = p2 then 0. else _haversine p1 p2
+
+end (* module LatLon *)
