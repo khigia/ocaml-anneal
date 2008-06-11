@@ -47,22 +47,6 @@ let path_length pts =
         pts
     |> snd
 
-    
-    (*
-let objective arr =
-    Array.fold_left (fun (i,sum) e -> (i + 1, sum + e * i)) (1, 0) arr
-    |> snd
-    |> float
-
-let _ =
-    let init = [|1;2;3;4;5;6;7;8;9;1;2;3;4;5;6;7;8;9;|] in
-    let cooling = Anneal.kirkpatrick_seq 0.9999 10.0 in
-    let (n, sol, score) = Anneal.optimize init objective reversed_section 500000 cooling in
-    Printf.printf "%d evaluations; score=%f; sol=\n" n score;
-    Array.iter (Printf.printf "%d ") sol;
-    print_newline ()
-    *)
-
 let _ =
     let posfn = ref "coords.txt" in
     let usage = Printf.sprintf "Usage: %s [-help] [-coords filename]" Sys.argv.(0) in
@@ -75,32 +59,44 @@ let _ =
         ]
         ignore
         usage;
+    let doit name path =
+        let d = path_length path in
+        Printf.eprintf "Path %s:" name;
+        Array.iter (Printf.eprintf " %d") path;
+        Printf.eprintf ": %f\n" d;
+        flush_all ();
+        let cooling = Anneal.kirkpatrick_seq 0.9999 10.0 in
+        let (n, sol, score) = Anneal.optimize path (fun p -> -. path_length p) reversed_section 500000 cooling in
+        Printf.eprintf "  Optimization: %d evaluations; score=%f\n" n score;
+        Printf.printf "%s " name;
+        Array.iter (Printf.printf "%d ") sol;
+        print_newline ()
+    in
+    let read_path () =
+        let line = read_line () in
+        let re = Str.regexp "[ \t]+" in
+        let name::pts = Str.split re line in
+        (name, Array.of_list (List.map int_of_string pts))
+    in
+    let rec loop () =
+        let name, p = read_path () in
+        match Array.length p with
+        | 0 -> ()
+        | n when n > 2 ->
+            (*TODO bug if p = 2 and p.(0)=p.(1) *)
+            doit name p;
+            loop ()
+        | _ ->
+            loop ()
+    in
     try
         let buf = Scanf.Scanning.from_file !posfn in
         let _ = read_positions buf in
-        let doit path =
-            let d = path_length path in
-            Printf.printf "Path:";
-            Array.iter (Printf.printf " %d") path;
-            Printf.printf ": %f\n" d;
-            let cooling = Anneal.kirkpatrick_seq 0.9999 10.0 in
-            let (n, sol, score) = Anneal.optimize path (fun p -> -. path_length p) reversed_section 5000 cooling in
-            Printf.printf "  Optimization: %d evaluations; score=%f; sol=" n score;
-            Array.iter (Printf.printf "%d ") sol;
-            print_newline ()
-        in
-        (*
-        let _ = doit [|1; 1;|] in (* TODO something wrong ... infinite loop ... probably in solution generation! *)
-        let _ = doit [|1; 2;|] in
-        let _ = doit [|1; 3;|] in
-        let _ = doit [|2; 3;|] in
-        let _ = doit [|3; 2;|] in
-        *)
-        let _ = doit [|1; 1; 2;|] in
-        let _ = doit [|1; 2; 3;|] in
-        ()
+        loop ()
     with
-        exn ->
-            Printf.printf "ERROR:%s\n%s\n" (Printexc.to_string exn) usage;
+        | End_of_file ->
+            ()
+        | exn ->
+            Printf.printf "ERROR:%s\n%s\n" (Printexc.to_string exn) usage
 
 

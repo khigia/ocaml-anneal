@@ -1,0 +1,1 @@
+time cat ex/sg-bus-services.txt | ./tspRun.native -coords ex/sg-bus-stops.txt 2>/dev/null > services.txt
