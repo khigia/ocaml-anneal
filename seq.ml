@@ -88,15 +88,28 @@ let rec filter pred seq =
         else
             filter pred (tail seq)
 
-let rec concat seqs = (* TODO this is concat_list; can have concat_seq *)
+let rec concat seqs =
+    match head seqs with
+    | None ->
+        Nil
+    | Some h ->
+        begin
+        match h with
+        | Nil ->
+            concat (tail seqs)
+        | Cons(hh, tt) ->
+            Cons(hh, lazy (concat (Cons(lazy (tail h), lazy (tail seqs)))))
+        end
+
+let rec concat_list seqs = (* TODO this is concat_list; can have concat_seq *)
     match seqs with
     | h :: a ->
         begin
         match head h with
         | None ->
-            concat a
+            concat_list a
         | Some e ->
-            Cons(lazy e, lazy (concat ((tail h) :: a)))
+            Cons(lazy e, lazy (concat_list ((tail h) :: a)))
         end
     | [] ->
         Nil
@@ -112,7 +125,7 @@ let rec cart seqs =
         | None ->
             Nil
         | Some e ->
-            concat [
+            concat_list [
                 (map (fun c -> e :: c) (cart a));
                 (cart ((tail h) :: a));
             ]

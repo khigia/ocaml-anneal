@@ -92,12 +92,16 @@ let _ = Tests.register "filter" (fun () ->
     _cmp_to_list_end f [0;2;4;6;8;]
 )
 
-let _ = Tests.register "concat" (fun () ->
+let _ = Tests.register "concat_list, concat" (fun () ->
     let s1 = Seq.of_list [0;1;2;] in
     let s2 = Seq.of_list [3;4;5;] in
     let s3 = Seq.of_list [6;7;8;] in
-    let seq = Seq.concat [s1;s2;s3;] in
-    _cmp_to_list_end seq [0;1;2;3;4;5;6;7;8;]
+    let res = [0;1;2;3;4;5;6;7;8;] in
+    let seqs_l = Seq.concat_list [s1;s2;s3;] in
+    let seqs = Seq.concat (Seq.of_list [s1;s2;s3;]) in
+    let _ = _cmp_to_list_end seqs_l res in
+    let _ = _cmp_to_list_end seqs res in
+    ()
 )
 
 let _ = Tests.register "cart" (fun () ->
