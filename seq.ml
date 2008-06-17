@@ -47,11 +47,11 @@ let to_list seq =
     in
     _to_list seq []
 
-let rec of_serie fn n0 =
-    Cons(lazy n0, lazy (of_serie fn (fn n0)))
-
 
 (* Manipulation *)
+
+let push_front e seq =
+    Cons(lazy e, lazy seq)
 
 let rec map fn seq =
     (* seq is last arg such that forward op can be used *)
@@ -101,7 +101,7 @@ let rec concat seqs =
             Cons(hh, lazy (concat (Cons(lazy (tail h), lazy (tail seqs)))))
         end
 
-let rec concat_list seqs = (* TODO this is concat_list; can have concat_seq *)
+let rec concat_list seqs =
     match seqs with
     | h :: a ->
         begin
@@ -113,6 +113,13 @@ let rec concat_list seqs = (* TODO this is concat_list; can have concat_seq *)
         end
     | [] ->
         Nil
+
+let rec combine s1 s2 =
+    match head s1 with
+    | None ->
+        s2
+    | Some h ->
+        Cons(lazy h, lazy (combine s2 (tail s1)))
 
 let rec cart seqs =
     match seqs with
@@ -129,3 +136,30 @@ let rec cart seqs =
                 (map (fun c -> e :: c) (cart a));
                 (cart ((tail h) :: a));
             ]
+
+
+(* Builder helpers *)
+
+let rec of_serie fn n0 =
+    Cons(lazy n0, lazy (of_serie fn (fn n0)))
+
+let rec dichotomy_int x y =
+    if x > y
+    then dichotomy_int y x
+    else
+        let delta = y - x in
+        if delta > 1
+        then
+            let half = x + delta / 2 in
+            Cons(lazy half, lazy (combine (dichotomy_int x half) (dichotomy_int half y)))
+        else
+            Nil
+
+
+let rec dichotomy_float x y =
+    if x > y
+    then dichotomy_float y x
+    else
+        let half = x +. (y -. x) /. 2. in
+        Cons(lazy half, lazy (combine (dichotomy_float x half) (dichotomy_float half y)))
+

@@ -43,17 +43,18 @@ let _ = Tests.register "Base: head_exn" (fun () ->
     OUnit.assert_raises Seq.EmptySeq (fun () -> Seq.head_exn s)
 )
 
-let _ = Tests.register "Helper: of_list, to_list" (fun () ->
+let _ = Tests.register "Transformers: of_list, to_list" (fun () ->
     let l = [1;2;3;] in
     let s = Seq.of_list l in
     _cmp_to_list_end s l;
     OUnit.assert_equal l (Seq.to_list s)
 )
 
-let _ = Tests.register "Helper: of_serie" (fun () ->
-    let fn = fun x -> x + 1 in
-    let s = Seq.of_serie fn 0 in
-    _cmp_to_list_cont s [0;1;2;3;4;5;]
+let _ = Tests.register "push_front" (fun () ->
+    let s = Seq.of_serie ((+) 1) 1 in
+    let s = Seq.push_front 0 s in
+    let s = Seq.push_front (-1) s in
+    _cmp_to_list_cont s [-1;0;1;2;3;]
 )
 
 let _ = Tests.register "map" (fun () ->
@@ -104,6 +105,13 @@ let _ = Tests.register "concat_list, concat" (fun () ->
     ()
 )
 
+let _ = Tests.register "combine" (fun () ->
+    let s1 = Seq.of_list [0;1;2;] in
+    let s2 = Seq.of_list [10;11;12;] in
+    let mer = Seq.combine s1 s2 in
+    _cmp_to_list_end mer [0;10;1;11;2;12;]
+)
+
 let _ = Tests.register "cart" (fun () ->
     let s1 = Seq.of_list [0;1;] in
     let s2 = Seq.of_list [2;3;] in
@@ -119,6 +127,23 @@ let _ = Tests.register "cart" (fun () ->
         [1;3;4;];
         [1;3;5;];
     ]
+)
+
+
+let _ = Tests.register "Builders: of_serie" (fun () ->
+    let fn = fun x -> x + 1 in
+    let s = Seq.of_serie fn 0 in
+    _cmp_to_list_cont s [0;1;2;3;4;5;]
+)
+
+let _ = Tests.register "Builders: dichotomy_float, dichotomy_int" (fun () ->
+    let dichf = Seq.dichotomy_float 0. 10. in
+    _cmp_to_list_cont dichf [5.;2.5;7.5;1.25;6.25;3.75;8.75;];
+    let dichi = Seq.dichotomy_int 0 10 in
+    _cmp_to_list_cont dichi [5;2;7;1;6;3;8;4;9;];
+    let dichi = Seq.dichotomy_int 1 11 in
+    _cmp_to_list_cont dichi [6;3;8;2;7;4;9;5;10;];
+    ()
 )
 
 let _ = Tests.run "Seq test suite"
