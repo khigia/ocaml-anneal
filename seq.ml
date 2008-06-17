@@ -4,21 +4,21 @@ exception EmptySeq
 
 type 'a t =
     | Nil
-    | Cons of 'a * 'a t lazy_t
+    | Cons of 'a lazy_t * 'a t lazy_t
 
 let head seq =
     match seq with
     | Nil ->
         None
     | Cons(h, q) ->
-        Some h
+        Some (Lazy.force h)
 
 let head_exn seq =
     match seq with
     | Nil ->
         raise EmptySeq
     | Cons(h, q) ->
-        h
+        Lazy.force h
 
 let tail seq =
     match seq with
@@ -33,7 +33,7 @@ let tail seq =
 let rec of_list lst =
     match lst with
     | h :: q ->
-        Cons(h, lazy (of_list q))
+        Cons(lazy h, lazy (of_list q))
     | [] ->
         Nil
 
@@ -48,7 +48,7 @@ let to_list seq =
     _to_list seq []
 
 let rec of_serie fn n0 =
-    Cons(n0, lazy (of_serie fn (fn n0)))
+    Cons(lazy n0, lazy (of_serie fn (fn n0)))
 
 
 (* Manipulation *)
@@ -59,7 +59,7 @@ let rec map fn seq =
     | None ->
         Nil
     | Some e ->
-        Cons(fn e, lazy (map fn (tail seq)))
+        Cons(lazy (fn e), lazy (map fn (tail seq)))
 
 let rec gmap_exn fn seqs =
     match seqs with
@@ -67,7 +67,7 @@ let rec gmap_exn fn seqs =
         Nil
     | _ ->
         let heads = List.map head_exn seqs in
-        Cons(fn heads, lazy (gmap_exn fn (List.map tail seqs)))
+        Cons(lazy (fn heads), lazy (gmap_exn fn (List.map tail seqs)))
 
 let rec iter fn seq =
     match head seq with
@@ -84,7 +84,7 @@ let rec filter pred seq =
     | Some h ->
         if pred h
         then
-            Cons(h, lazy (filter pred (tail seq) ))
+            Cons(lazy h, lazy (filter pred (tail seq) ))
         else
             filter pred (tail seq)
 
@@ -96,7 +96,7 @@ let rec concat seqs = (* TODO this is concat_list; can have concat_seq *)
         | None ->
             concat a
         | Some e ->
-            Cons(e, lazy (concat ((tail h) :: a)))
+            Cons(lazy e, lazy (concat ((tail h) :: a)))
         end
     | [] ->
         Nil

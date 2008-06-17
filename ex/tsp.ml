@@ -8,7 +8,7 @@ let shuffle_seq size =
             let idx = Random.int (len - pos) in
             let cur = arr.(pos + idx) in
             arr.(pos + idx) <- arr.(pos);
-            Seq.Cons(cur, lazy (_shuffle arr len (pos + 1)))
+            Seq.Cons(lazy cur, lazy (_shuffle arr len (pos + 1)))
         else
             Seq.Nil
     in

@@ -29,9 +29,9 @@ let rec _cmp_to_list_cont seq lst =
 
 let _ = Tests.register "Base: head, tail" (fun () ->
     let s = Seq.Cons(
-        1,
+        lazy 1,
         lazy (Seq.Cons(
-            2,
+            lazy 2,
             lazy Seq.Nil
         ))
     ) in
