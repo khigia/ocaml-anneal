@@ -88,7 +88,7 @@ let rec filter pred seq =
         else
             filter pred (tail seq)
 
-let rec concat seqs =
+let rec concat seqs = (* TODO this is concat_list; can have concat_seq *)
     match seqs with
     | h :: a ->
         begin
