@@ -143,6 +143,13 @@ let rec cart seqs =
 let rec of_serie fn n0 =
     Cons(lazy n0, lazy (of_serie fn (fn n0)))
 
+let rec range_int ?(step=1) a b =
+    if (step > 0 && a < b) || (step < 0 && a > b)
+    then
+        Cons(lazy a, lazy (range_int ~step:step (a + step) b))
+    else
+        Nil
+
 let rec dichotomy_int x y =
     if x > y
     then dichotomy_int y x

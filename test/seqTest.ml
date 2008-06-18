@@ -130,6 +130,16 @@ let _ = Tests.register "cart" (fun () ->
 )
 
 
+let _ = Tests.register "Builders: range_int" (fun () ->
+    let s = Seq.range_int 0 5 in
+    _cmp_to_list_end s [0;1;2;3;4;];
+    let s = Seq.range_int ~step:2 0 5 in
+    _cmp_to_list_end s [0;2;4;];
+    let s = Seq.range_int ~step:(-1) 5 0 in
+    _cmp_to_list_end s [5;4;3;2;1;];
+    ()
+)
+
 let _ = Tests.register "Builders: of_serie" (fun () ->
     let fn = fun x -> x + 1 in
     let s = Seq.of_serie fn 0 in
