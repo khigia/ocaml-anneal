@@ -50,6 +50,14 @@ let _ = Tests.register "Transformers: of_list, to_list" (fun () ->
     OUnit.assert_equal l (Seq.to_list s)
 )
 
+let _ = Tests.register "Transformers: of_array" (fun () ->
+    let l = [1;2;3;] in
+    let a = Array.of_list l in
+    let s = Seq.of_array a in
+    _cmp_to_list_end s l;
+    OUnit.assert_equal l (Seq.to_list s)
+)
+
 let _ = Tests.register "push_front" (fun () ->
     let s = Seq.of_serie ((+) 1) 1 in
     let s = Seq.push_front 0 s in

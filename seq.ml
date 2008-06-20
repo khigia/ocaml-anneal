@@ -47,6 +47,17 @@ let to_list seq =
     in
     _to_list seq []
 
+let of_array a =
+    let rec _of_array a pos =
+        let l = Array.length a in
+        if pos < l
+        then
+            Cons(lazy a.(pos), lazy (_of_array a (pos + 1)))
+        else
+            Nil
+    in
+    _of_array a 0
+
 
 (* Manipulation *)
 
